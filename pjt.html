@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Quiz App</title>
+  <style>
+    /* === Reset === */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+background: linear-gradient(135deg, #264b2c, #171a1e);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
+
+    .quiz-container {
+      background: #fff;
+      width: 90%;
+      max-width: 600px;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0px 8px 20px rgba(0,0,0,0.2);
+      text-align: center;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+
+    h1 {
+      font-size: 26px;
+      margin-bottom: 20px;
+      color: #444;
+    }
+
+    .question {
+      font-size: 20px;
+      margin: 20px 0;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .option-btn {
+      padding: 12px 18px;
+      background: #f5f5f5;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 16px;
+      text-align: left;
+    }
+
+    .option-btn:hover {
+      background: #e2e8f0;
+      border-color: #667eea;
+    }
+
+    .option-btn.correct {
+      background: #c6f6d5;
+      border-color: #38a169;
+    }
+
+    .option-btn.wrong {
+      background: #fed7d7;
+      border-color: #e53e3e;
+    }
+
+    #next-btn {
+      margin-top: 20px;
+      padding: 12px 25px;
+      background: #667eea;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+      display: none;
+    }
+
+    #next-btn:hover {
+      background: #5a67d8;
+    }
+
+    .score {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <h1>Interactive Quiz App</h1>
+    <div class="question" id="question">Loading question...</div>
+    <div class="options" id="options"></div>
+    <button id="next-btn">Next</button>
+    <div class="score" id="score"></div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "What does HTML stand for?",
+        options: [
+          "Hyper Text Markup Language",
+          "High Text Machine Language",
+          "Hyperlinks and Text Markup Language",
+          "Home Tool Markup Language"
+        ],
+        answer: 0
+      },
+      {
+        question: "Which language is used for styling web pages?",
+        options: ["HTML", "CSS", "Python", "C++"],
+        answer: 1
+      },
+      {
+        question: "Which language is used to make web pages interactive?",
+        options: ["JavaScript", "Java", "PHP", "C#"],
+        answer: 0
+      },
+      {
+        question: "Which of these is a JavaScript framework?",
+        options: ["React", "Laravel", "Django", "Spring"],
+        answer: 0
+      }
+    ];
+
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const nextBtn = document.getElementById("next-btn");
+    const scoreEl = document.getElementById("score");
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    function loadQuestion() {
+      resetState();
+      let currentQuestion = questions[currentQuestionIndex];
+      questionEl.textContent = currentQuestion.question;
+
+      currentQuestion.options.forEach((option, index) => {
+        const button = document.createElement("button");
+        button.textContent = option;
+        button.classList.add("option-btn");
+        button.addEventListener("click", () => selectAnswer(button, index));
+        optionsEl.appendChild(button);
+      });
+    }
+
+    function resetState() {
+      nextBtn.style.display = "none";
+      optionsEl.innerHTML = "";
+    }
+
+    function selectAnswer(button, selectedIndex) {
+      let correctIndex = questions[currentQuestionIndex].answer;
+      const optionButtons = document.querySelectorAll(".option-btn");
+
+      optionButtons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === correctIndex) {
+          btn.classList.add("correct");
+        } else if (idx === selectedIndex) {
+          btn.classList.add("wrong");
+        }
+      });
+
+      if (selectedIndex === correctIndex) {
+        score++;
+      }
+
+      nextBtn.style.display = "inline-block";
+    }
+
+    function showScore() {
+      resetState();
+      questionEl.textContent = "Quiz Completed 🎉";
+      scoreEl.textContent = `Your Score: ${score} / ${questions.length}`;
+      nextBtn.textContent = "Restart";
+      nextBtn.style.display = "inline-block";
+    }
+
+    function handleNext() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        loadQuestion();
+      } else {
+        showScore();
+      }
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if (currentQuestionIndex < questions.length) {
+        handleNext();
+      } else {
+        currentQuestionIndex = 0;
+        score = 0;
+        nextBtn.textContent = "Next";
+        scoreEl.textContent = "";
+        loadQuestion();
+      }
+    });
+
+    loadQuestion();
+  </script>
+</body>
+</html>
